@@ -22,12 +22,19 @@
             --input-bg: #283747;
             --modal-bg: #1e2a38;
             --hover-color: #3e546a;
+            --toast-success-bg: #2ecc71;
+            --toast-error-bg: #e74c3c;
+            --toast-info-bg: #3498db;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -76,6 +83,7 @@
             margin-bottom: 30px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             overflow: hidden;
+            transition: all 0.3s ease-in-out;
         }
 
         .panel-header {
@@ -172,6 +180,7 @@
             border-radius: 4px;
             font-size: 1rem;
             font-family: 'Roboto', sans-serif; /* Asegurar la fuente */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         input[type="number"] {
@@ -192,7 +201,20 @@
         select:focus, input:focus {
             outline: none;
             border-color: var(--accent-color);
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); /* Sutil resplandor al enfocar */
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6); /* Sutil resplandor al enfocar */
+        }
+        
+        /* MEJORA UX: Estilo para inputs inválidos */
+        input.invalid {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
 
@@ -320,20 +342,50 @@
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
+            transition: all 0.3s ease;
             display: inline-flex; /* Para alinear icono y texto */
             align-items: center;
             gap: 8px; /* Espacio entre icono y texto */
+            position: relative;
         }
 
         .action-btn:hover {
             background-color: #2980b9;
             transform: translateY(-2px); /* Efecto ligero al pasar el ratón */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .action-btn:active {
             transform: translateY(0); /* Quitar efecto al hacer clic */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* MEJORA UX: Estilo para el estado de carga del botón */
+        .action-btn.loading .btn-text,
+        .action-btn.loading i {
+            opacity: 0;
+        }
+
+        .action-btn .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .action-btn.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
 
@@ -433,7 +485,7 @@
             align-items: center;
             gap: 5px;
             font-size: 0.9rem;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
 
 
@@ -444,6 +496,7 @@
 
         .add-btn:hover {
             background-color: #27ae60;
+            transform: scale(1.05);
         }
 
         .remove-btn {
@@ -453,6 +506,7 @@
 
         .remove-btn:hover {
             background-color: #c0392b;
+            transform: scale(1.05);
         }
 
         .column-content {
@@ -518,6 +572,11 @@
             border-radius: 4px;
             font-size: 1.1rem;
             border-left: 4px solid var(--accent-color); /* Indicador visual */
+            transition: background-color 0.3s;
+        }
+        
+        .total-item:hover {
+            background-color: var(--hover-color);
         }
 
         .total-item .total-label {
@@ -535,15 +594,16 @@
         #diferencia {
             padding: 5px 10px;
             border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
-        #diferencia[data-positive="true"] { /* Añadir atributo en JS si es positivo */
+        #diferencia.positive {
             color: var(--success-color);
             border: 1px solid var(--success-color);
             background-color: rgba(46, 204, 113, 0.1);
         }
 
-        #diferencia[data-negative="true"] { /* Añadir atributo en JS si es negativo */
+        #diferencia.negative {
             color: var(--danger-color);
             border: 1px solid var(--danger-color);
             background-color: rgba(231, 76, 60, 0.1);
@@ -604,7 +664,7 @@
 
         /* Modales */
         .modal {
-            display: none;
+            display: none; /* Cambiado a 'none' por defecto */
             position: fixed;
             z-index: 1000;
             left: 0;
@@ -613,31 +673,32 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8); /* Más oscuro */
             overflow: auto;
-            animation: fadeIn 0.3s ease-out; /* Animación al abrir */
+            align-items: center; /* Centrar verticalmente */
+            justify-content: center; /* Centrar horizontalmente */
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .modal.show {
+            display: flex;
+            opacity: 1;
         }
 
 
         .modal-content {
             background-color: var(--modal-bg);
-            margin: 8% auto; /* Ajustar margen superior */
             padding: 25px 30px; /* Más padding horizontal */
             border-radius: 8px;
             width: 90%; /* Más ancho en pantallas pequeñas */
             max-width: 550px; /* Ancho máximo */
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Sombra más pronunciada */
             position: relative;
-            animation: slideIn 0.3s ease-out; /* Animación del contenido */
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
         }
-
-
-        @keyframes slideIn {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        
+        .modal.show .modal-content {
+            transform: scale(1);
         }
 
 
@@ -714,23 +775,59 @@
             background-color: #2980b9;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        
+        /* MEJORA UX: Modal de confirmación */
+        .confirm-modal-content .modal-body {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+        .confirm-modal-content .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .confirm-modal-content .modal-btn {
+            padding: 10px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .modal-btn.confirm-yes {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .modal-btn.confirm-yes:hover { background-color: #c0392b; }
+        .modal-btn.confirm-no {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .modal-btn.confirm-no:hover { background-color: var(--hover-color); }
 
 
         /* Configuración */
         .config-warning {
-            background-color: var(--warning-color);
-            color: #fff;
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 25px; /* Más espacio */
             text-align: center;
-            border-left: 5px solid var(--danger-color);
+            border-left: 5px solid var(--warning-color);
         }
-
-        .config-warning p {
-            margin: 0 0 10px 0;
-            font-weight: 500;
+        
+        .config-danger-zone {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--danger-color);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
         }
+        .config-danger-zone h4 { color: var(--danger-color); margin-bottom: 10px; }
+        .config-danger-zone p { font-size: 0.9rem; margin-bottom: 15px; }
 
 
         .warning-btn {
@@ -820,7 +917,7 @@
         }
 
 
-        .playeros-list {
+        .playeros-list, .clientes-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -828,7 +925,7 @@
             grid-column: 1 / -1; /* Ocupar todo el ancho en grid */
         }
 
-        .playero-item {
+        .playero-item, .cliente-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -836,14 +933,20 @@
             padding: 10px 15px;
             border-radius: 4px;
             border-left: 3px solid var(--accent-color);
+            transition: all 0.3s;
         }
 
-        .playero-item span {
+        .playero-item:hover, .cliente-item:hover {
+            background-color: var(--hover-color);
+            border-left-color: var(--success-color);
+        }
+
+        .playero-item span, .cliente-item span {
             font-weight: 500;
         }
 
 
-        .remove-playero-btn {
+        .remove-playero-btn, .remove-cliente-btn {
             background-color: var(--danger-color);
             color: white;
             border: none;
@@ -853,7 +956,7 @@
             font-size: 0.8rem;
             transition: background-color 0.3s;
         }
-        .remove-playero-btn:hover {
+        .remove-playero-btn:hover, .remove-cliente-btn:hover {
             background-color: #c0392b;
         }
 
@@ -874,8 +977,24 @@
             border-radius: 4px;
             margin-bottom: 8px; /* Menos espacio entre items */
             border-left: 3px solid var(--accent-color); /* Indicador */
-            transition: background-color 0.2s;
+            transition: all 0.3s ease-out;
+            opacity: 1;
+            transform: translateX(0);
         }
+
+        /* MEJORA UX: Animación de entrada/salida para items */
+        .item.item-enter {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        .item.item-exit {
+            opacity: 0;
+            transform: scale(0.9);
+            margin-bottom: -45px; /* Ajusta según la altura del item */
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
 
         .item:hover {
             background-color: var(--hover-color);
@@ -1006,12 +1125,12 @@
             border-top: 1px solid var(--border-color);
         }
 
-        #print-btn { /* Estilo específico para el botón de imprimir final */
+        #print-btn-final { /* Estilo específico para el botón de imprimir final */
             width: auto; /* No ocupar todo el ancho */
             padding: 10px 30px;
             background-color: var(--success-color);
         }
-        #print-btn:hover {
+        #print-btn-final:hover {
             background-color: #27ae60;
         }
 
@@ -1143,43 +1262,6 @@
             box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
         }
 
-        /* Estilos para la lista de Clientes en Configuración (similar a Playeros) */
-        .clientes-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-            grid-column: 1 / -1;
-        }
-
-        .cliente-item { /* Puedes usar la misma clase .playero-item si prefieres */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--input-bg);
-            padding: 10px 15px;
-            border-radius: 4px;
-            border-left: 3px solid var(--accent-color);
-        }
-
-        .cliente-item span {
-            font-weight: 500;
-        }
-
-        .remove-cliente-btn { /* Puedes usar la misma clase .remove-playero-btn */
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: background-color 0.3s;
-        }
-        .remove-cliente-btn:hover {
-            background-color: #c0392b;
-        }
-
         /* Iconos para títulos de sección en configuración */
         .config-section h3 i {
             margin-right: 8px;
@@ -1189,6 +1271,43 @@
         .column h3 i {
            margin-right: 8px;
         }
+        
+        /* MEJORA UX: Estilos para notificaciones Toast */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInToast 0.4s ease-out forwards, fadeOutToast 0.4s ease-in 3.5s forwards;
+            transform: translateX(120%);
+        }
+
+        .toast.success { background-color: var(--toast-success-bg); }
+        .toast.error { background-color: var(--toast-error-bg); }
+        .toast.info { background-color: var(--toast-info-bg); }
+
+        @keyframes slideInToast {
+            to { transform: translateX(0); }
+        }
+        @keyframes fadeOutToast {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(120%); }
+        }
+
     </style>
 
 </head>
@@ -1260,32 +1379,32 @@
                                 <tbody>
                                     <tr data-fuel-type="FORMULA DIESEL">
                                         <td>FORMULA DIESEL</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="1" data-manguera="1"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="1" data-manguera="1"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="2000" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="NAFTA SUPER">
                                         <td>NAFTA SUPER</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="1" data-manguera="2"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="1" data-manguera="2"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="1500" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="FORMULA DIESEL">
                                         <td>FORMULA DIESEL</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="1" data-manguera="3"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="1" data-manguera="3"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="2000" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="NAFTA SUPER">
                                         <td>NAFTA SUPER</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="1" data-manguera="4"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="1" data-manguera="4"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="1500" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
@@ -1311,64 +1430,64 @@
                                 <tbody>
                                     <tr data-fuel-type="V-POWER DIESEL">
                                         <td>V-POWER DIESEL</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="2" data-manguera="1"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="2" data-manguera="1"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="3000" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="V-POWER NAFTA">
                                         <td>V-POWER NAFTA</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="2" data-manguera="2"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="2" data-manguera="2"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="2500" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="NAFTA SUPER">
                                         <td>NAFTA SUPER</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="2" data-manguera="3"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="2" data-manguera="3"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="1500" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="FORMULA DIESEL">
                                         <td>FORMULA DIESEL</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="2" data-manguera="4"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="2" data-manguera="4"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="2000" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="V-POWER DIESEL">
                                         <td>V-POWER DIESEL</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="2" data-manguera="5"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="2" data-manguera="5"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="3000" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="V-POWER NAFTA">
                                         <td>V-POWER NAFTA</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="2" data-manguera="6"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="2" data-manguera="6"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="2500" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="NAFTA SUPER">
                                         <td>NAFTA SUPER</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="2" data-manguera="7"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="2" data-manguera="7"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="1500" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
                                     </tr>
                                     <tr data-fuel-type="FORMULA DIESEL">
                                         <td>FORMULA DIESEL</td>
-                                        <td><input type="number" class="inicio" min="0"></td>
-                                        <td><input type="number" class="final" min="0"></td>
+                                        <td><input type="number" class="inicio" min="0" data-pico="2" data-manguera="8"></td>
+                                        <td><input type="number" class="final" min="0" data-pico="2" data-manguera="8"></td>
                                         <td><input type="number" class="litro" readonly></td>
                                         <td><input type="number" class="precio-unitario" value="2000" readonly></td>
                                         <td><input type="number" class="precio-total" readonly></td>
@@ -1380,13 +1499,13 @@
 
                     <div class="total-container">
                         <div class="total-label">Total Combustibles:</div>
-                        <div class="total-value" id="total-combustibles">$0</div>
+                        <div class="total-value" id="total-combustibles">$0.00</div>
                     </div>
 
                     <div class="buttons-container">
-                        <button id="borrar-btn" class="action-btn"><i class="fas fa-trash"></i> BORRAR</button>
-                        <button id="calcular-btn" class="action-btn"><i class="fas fa-calculator"></i> CALCULAR</button>
-                        <button id="registrar-btn" class="action-btn"><i class="fas fa-save"></i> REGISTRAR</button>
+                        <button id="borrar-btn" class="action-btn"><i class="fas fa-trash"></i><span class="btn-text">BORRAR</span><span class="spinner"></span></button>
+                        <button id="calcular-btn" class="action-btn"><i class="fas fa-calculator"></i><span class="btn-text">CALCULAR</span><span class="spinner"></span></button>
+                        <button id="registrar-btn" class="action-btn"><i class="fas fa-save"></i><span class="btn-text">REGISTRAR</span><span class="spinner"></span></button>
                     </div>
                 </div>
             </section>
@@ -1416,7 +1535,7 @@
                             </div>
                             <div class="column-total">
                                 <span>Total:</span>
-                                <span id="total-aceites">$0</span>
+                                <span id="total-aceites">$0.00</span>
                             </div>
                         </div>
 
@@ -1432,7 +1551,7 @@
                             </div>
                             <div class="column-total">
                                 <span>Total:</span>
-                                <span id="total-vales">$0</span>
+                                <span id="total-vales">$0.00</span>
                             </div>
                         </div>
 
@@ -1448,7 +1567,7 @@
                             </div>
                             <div class="column-total">
                                 <span>Total:</span>
-                                <span id="total-tarjetas">$0</span>
+                                <span id="total-tarjetas">$0.00</span>
                             </div>
                         </div>
 
@@ -1464,7 +1583,7 @@
                             </div>
                             <div class="column-total">
                                 <span>Total:</span>
-                                <span id="total-transferencias">$0</span>
+                                <span id="total-transferencias">$0.00</span>
                             </div>
                         </div>
                     </div>
@@ -1480,26 +1599,25 @@
                     <div class="totals-container">
                         <div class="total-item">
                             <span class="total-label">TOTAL COMBUSTIBLES:</span>
-                            <span class="total-value" id="total-combustibles-resumen">$0</span>
+                            <span class="total-value" id="total-combustibles-resumen">$0.00</span>
                         </div>
                         <div class="total-item">
                             <span class="total-label">TOTAL CAJA:</span>
-                            <span class="total-value" id="total-caja">$0</span> <!-- MODIFICACIÓN 3: Este valor se actualizará en tiempo real por JS -->
+                            <span class="total-value" id="total-caja">$0.00</span>
                         </div>
                         <div class="total-item">
                             <span class="total-label">DIFERENCIA:</span>
-                            <span class="total-value" id="diferencia">$0</span> <!-- MODIFICACIÓN 3: Este valor se actualizará en tiempo real por JS -->
+                            <span class="total-value" id="diferencia">$0.00</span>
                         </div>
                     </div>
 
                     <div class="options-container">
-                        <button id="imprimir-btn" class="action-btn"><i class="fas fa-print"></i> IMPRIMIR</button>
-                        <button id="config-btn" class="action-btn"><i class="fas fa-cog"></i> CONFIGURACIÓN</button>
+                        <button id="imprimir-btn" class="action-btn"><i class="fas fa-print"></i><span class="btn-text">IMPRIMIR</span><span class="spinner"></span></button>
+                        <button id="config-btn" class="action-btn"><i class="fas fa-cog"></i><span class="btn-text">CONFIGURACIÓN</span><span class="spinner"></span></button>
                     </div>
 
                      <div class="notas-section">
                         <h3><i class="fas fa-pencil-alt"></i> Notas:</h3>
-                        <!-- MODIFICACIÓN 2: Reemplazar las líneas por un textarea -->
                         <textarea id="notas-textarea" rows="5" placeholder="Escriba aquí las notas relevantes del turno..."></textarea>
                     </div>
                 </div>
@@ -1511,6 +1629,9 @@
             <p>© 2024 Sistema de Gestión - Gasolinera</p>
         </footer>
     </div>
+
+    <!-- MEJORA UX: Contenedor para notificaciones Toast -->
+    <div id="toast-container"></div>
 
     <!-- Modales -->
     <!-- Modal para Aceites y Lubricantes -->
@@ -1538,7 +1659,7 @@
                 <label for="vale-nombre">Nombre Cliente:</label> <!-- Etiqueta actualizada -->
                 <select id="vale-nombre">
                     <option value="">Seleccionar nombre</option>
-                    <!-- MODIFICACIÓN 1: Opciones se cargarán desde la config/JS -->
+                    <!-- Opciones se cargarán desde la config/JS -->
                 </select>
             </div>
             <div class="form-group">
@@ -1617,10 +1738,9 @@
             <span class="close">×</span>
             <h2>Configuración</h2>
             <div class="config-warning">
-                <p>¡Atención! Esta sección permite modificar precios y configuraciones del sistema.</p>
-                <button id="enable-config-btn" class="warning-btn">Habilitar Configuración</button>
+                <p><i class="fas fa-exclamation-triangle"></i> ¡Atención! Los cambios aquí afectan a toda la aplicación.</p>
             </div>
-            <div id="config-sections" class="config-sections" style="display: none;">
+            <div id="config-sections" class="config-sections">
                 <div class="config-section">
                     <h3><i class="fas fa-gas-pump"></i> Precios de Combustibles</h3>
                     <div class="config-form">
@@ -1664,8 +1784,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- MODIFICACIÓN 1: Nueva sección para Gestión de Clientes -->
+                
                 <div class="config-section">
                     <h3><i class="fas fa-address-book"></i> Gestión de Clientes (Vales)</h3>
                     <div class="config-form">
@@ -1679,10 +1798,16 @@
                         </div>
                     </div>
                 </div>
-                <!-- Fin MODIFICACIÓN 1 -->
-
 
                 <button id="save-config-btn" class="confirm-btn">Guardar Configuración</button>
+                
+                <!-- MEJORA UX: Zona de Peligro para reseteo -->
+                <div class="config-danger-zone">
+                    <h4><i class="fas fa-biohazard"></i> Zona de Peligro</h4>
+                    <p>Esta acción borrará permanentemente toda la configuración y los datos del cierre de caja guardados en este navegador.</p>
+                    <button id="reset-app-btn" class="warning-btn">Limpiar Todo y Reiniciar Aplicación</button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -1696,436 +1821,260 @@
                 <!-- El contenido se generará dinámicamente -->
             </div>
             <div class="print-buttons">
-                <button id="print-btn" class="confirm-btn">Imprimir</button>
+                <button id="print-btn-final" class="confirm-btn">Imprimir</button>
             </div>
         </div>
     </div>
+    
+    <!-- MEJORA UX: Modal de Confirmación Genérico -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content confirm-modal-content" style="max-width: 450px;">
+            <h2 id="confirm-title">Confirmar Acción</h2>
+            <div id="confirm-body" class="modal-body">
+                ¿Está seguro de que desea continuar?
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-yes-btn" class="modal-btn confirm-yes">Sí</button>
+                <button id="confirm-no-btn" class="modal-btn confirm-no">No</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- <script src="script.js"></script> <-- Eliminado enlace externo -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
             // ------------------------------------------------------------------------
-            // Selectores Globales (añadir nuevos selectores aquí)
+            // MEJORA LÓGICA: Estado centralizado de la aplicación
             // ------------------------------------------------------------------------
-            const playeroSelect = document.getElementById('playero'); // El select principal
-            const totalCombustiblesSpan = document.getElementById('total-combustibles');
-            const totalCombustiblesResumenSpan = document.getElementById('total-combustibles-resumen');
-            const efectivoInput = document.getElementById('efectivo');
-            const totalCajaSpan = document.getElementById('total-caja');
-            const diferenciaSpan = document.getElementById('diferencia');
-            const calcularBtn = document.getElementById('calcular-btn');
-            const borrarBtn = document.getElementById('borrar-btn');
-            const registrarBtn = document.getElementById('registrar-btn');
-            const fuelTables = document.querySelectorAll('.fuel-table');
+            const APP_STORAGE_KEY = 'gasStationClosingApp';
 
-            // Selectores Columnas Panel 3
-            const addAceiteBtn = document.getElementById('add-aceite-btn');
-            const removeAceiteBtn = document.getElementById('remove-aceite-btn');
-            const aceitesList = document.getElementById('aceites-list');
-            const totalAceitesSpan = document.getElementById('total-aceites');
-            const addValeBtn = document.getElementById('add-vale-btn');
-            const removeValeBtn = document.getElementById('remove-vale-btn');
-            const valesList = document.getElementById('vales-list');
-            const totalValesSpan = document.getElementById('total-vales');
-            const addTarjetaBtn = document.getElementById('add-tarjeta-btn');
-            const removeTarjetaBtn = document.getElementById('remove-tarjeta-btn');
-            const tarjetasList = document.getElementById('tarjetas-list');
-            const totalTarjetasSpan = document.getElementById('total-tarjetas');
-            const addTransferenciaBtn = document.getElementById('add-transferencia-btn');
-            const removeTransferenciaBtn = document.getElementById('remove-transferencia-btn');
-            const transferenciasList = document.getElementById('transferencias-list');
-            const totalTransferenciasSpan = document.getElementById('total-transferencias');
-
-            // Selectores Modales y Botones
-            const aceiteModal = document.getElementById('aceite-modal');
-            const valeModal = document.getElementById('vale-modal');
-            const tarjetaModal = document.getElementById('tarjeta-modal');
-            const transferenciaModal = document.getElementById('transferencia-modal');
-            const configModal = document.getElementById('config-modal');
-            const printModal = document.getElementById('print-modal');
-            const closeButtons = document.querySelectorAll('.close');
-            const addAceiteConfirmBtn = document.getElementById('add-aceite-confirm');
-            const addValeConfirmBtn = document.getElementById('add-vale-confirm');
-            const addTarjetaConfirmBtn = document.getElementById('add-tarjeta-confirm');
-            const addTransferenciaConfirmBtn = document.getElementById('add-transferencia-confirm');
-            const imprimirBtn = document.getElementById('imprimir-btn'); // Botón en Panel 4
-            const configBtn = document.getElementById('config-btn');
-            const printButton = document.getElementById('print-btn'); // Botón en Modal Print
-            const printContent = document.getElementById('print-content');
-
-            // Selectores Inputs Modales
-            const aceiteSelect = document.getElementById('aceite-select');
-            const valeNombreSelect = document.getElementById('vale-nombre');
-            const valeCombustibleSelect = document.getElementById('vale-combustible');
-            const valeLitroInput = document.getElementById('vale-litro');
-            const valePrecioInput = document.getElementById('vale-precio');
-            const tarjetaMontoInput = document.getElementById('tarjeta-monto');
-            const transferenciaNombreInput = document.getElementById('transferencia-nombre');
-            const transferenciaCombustibleSelect = document.getElementById('transferencia-combustible');
-            const transferenciaLitroInput = document.getElementById('transferencia-litro');
-            const transferenciaPrecioInput = document.getElementById('transferencia-precio');
-            const transferenciaFechaSpan = document.getElementById('transferencia-fecha');
-
-            // Selectores Configuración
-            const enableConfigBtn = document.getElementById('enable-config-btn');
-            const configSections = document.getElementById('config-sections');
-            const configFuelVPowerDiesel = document.getElementById('config-vpower-diesel');
-            const configFuelVPowerNafta = document.getElementById('config-vpower-nafta');
-            const configFuelNaftaSuper = document.getElementById('config-nafta-super');
-            const configFuelFormulaDiesel = document.getElementById('config-formula-diesel');
-            const aceitesConfigForm = document.getElementById('aceites-config-form');
-            const addAceiteConfigBtn = document.getElementById('add-aceite-config-btn');
-            const saveConfigBtn = document.getElementById('save-config-btn');
-            const playerosListConfig = document.getElementById('playeros-list-config'); // Específico de config
-            const newPlayeroInput = document.getElementById('new-playero');
-            const addPlayeroBtn = document.getElementById('add-playero-btn');
-
-            // MODIFICACIÓN 1: Selectores para Gestión de Clientes
-            const clientesListConfig = document.getElementById('clientes-list-config'); // Lista en config
-            const newClienteInput = document.getElementById('new-cliente');
-            const addClienteBtn = document.getElementById('add-cliente-btn');
-
-            // MODIFICACIÓN 2: Selector para Textarea de Notas
-            const notasTextarea = document.getElementById('notas-textarea');
-
-            // ------------------------------------------------------------------------
-            // Datos Globales (Precios, Listas, etc.)
-            // ------------------------------------------------------------------------
-            let fuelPrices = {
-                'V-POWER DIESEL': 3000,
-                'V-POWER NAFTA': 2500,
-                'NAFTA SUPER': 1500,
-                'FORMULA DIESEL': 2000
-            };
-            let aceitesLubricantes = {
-                'Helix HX5 15W40': 15000,
-                'Rimula R4 15W40': 18000,
-                'Grasa Litio EP2': 5000,
-            };
-            let playeros = ["Aarón", "Emanuel", "Fiorela", "Germán"]; // Array inicial
-            let clientes = ["Cliente Ejemplo 1", "Cliente Ejemplo 2"]; // MODIFICACIÓN 1: Array inicial de clientes
-
-            // Arrays para items de las columnas
-            let aceitesItems = [];
-            let valesItems = [];
-            let tarjetasItems = [];
-            let transferenciasItems = [];
-
-            // ------------------------------------------------------------------------
-            // PANEL 1: Información General
-            // ------------------------------------------------------------------------
-            function updateDateTime() {
-                const now = new Date();
-                const day = String(now.getDate()).padStart(2, '0');
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const year = now.getFullYear();
-                document.getElementById('current-date').textContent = `${day}/${month}/${year}`;
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                document.getElementById('current-time').textContent = `${hours}:${minutes}`;
-                let shift = "";
-                const currentHour = now.getHours();
-                if (currentHour >= 6 && currentHour < 14) shift = "Mañana";
-                else if (currentHour >= 14 && currentHour < 22) shift = "Tarde";
-                else shift = "Noche";
-                document.getElementById('current-shift').textContent = shift;
-            }
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-
-            // ------------------------------------------------------------------------
-            // PANEL 2: Registro de Surtidores de Combustible
-            // ------------------------------------------------------------------------
-            function calcularTabla(table) {
-                const rows = table.querySelectorAll('tbody tr');
-                let totalTabla = 0;
-                rows.forEach(row => {
-                    const inicioInput = row.querySelector('.inicio');
-                    const finalInput = row.querySelector('.final');
-                    const litroInput = row.querySelector('.litro');
-                    const precioUnitarioInput = row.querySelector('.precio-unitario');
-                    const precioTotalInput = row.querySelector('.precio-total');
-                    const fuelType = row.dataset.fuelType;
-                    precioUnitarioInput.value = fuelPrices[fuelType] || 0;
-                    const inicio = parseFloat(inicioInput.value) || 0;
-                    const final = parseFloat(finalInput.value) || 0;
-                    const precioUnitario = parseFloat(precioUnitarioInput.value) || 0;
-                    let litros = 0;
-                     if (final >= inicio) litros = final - inicio;
-                    litroInput.value = litros.toFixed(2);
-                    const precioTotal = litros * precioUnitario;
-                    precioTotalInput.value = precioTotal.toFixed(2);
-                    totalTabla += precioTotal;
-                });
-                return totalTabla;
+            function getDefaultState() {
+                return {
+                    config: {
+                        fuelPrices: {
+                            'V-POWER DIESEL': 3000,
+                            'V-POWER NAFTA': 2500,
+                            'NAFTA SUPER': 1500,
+                            'FORMULA DIESEL': 2000
+                        },
+                        aceitesLubricantes: {
+                            'Helix HX5 15W40': 15000,
+                            'Rimula R4 15W40': 18000,
+                            'Grasa Litio EP2': 5000,
+                        },
+                        playeros: ["Aarón", "Emanuel", "Fiorela", "Germán"],
+                        clientes: ["Cliente Ejemplo 1", "Cliente Ejemplo 2"],
+                    },
+                    currentClosing: {
+                        playero: '',
+                        fuelData: {}, // { 'p1-m1': { inicio: '123', final: '456' }, ... }
+                        efectivo: '',
+                        notas: '',
+                        items: {
+                            aceites: [],
+                            vales: [],
+                            tarjetas: [],
+                            transferencias: []
+                        }
+                    }
+                };
             }
 
-            function calcularTotalCombustibles() {
-                let totalGlobal = 0;
-                fuelTables.forEach(table => {
-                    totalGlobal += calcularTabla(table);
-                });
-                const formattedTotal = '$' + totalGlobal.toFixed(2);
-                totalCombustiblesSpan.textContent = formattedTotal;
-                totalCombustiblesResumenSpan.textContent = formattedTotal;
-                updateDiferencia(); // MODIFICACIÓN 3: Asegura que la diferencia se actualice
-            }
+            let appState = getDefaultState();
 
-            function borrarTabla(table) {
-                const rows = table.querySelectorAll('tbody tr');
-                rows.forEach(row => {
-                    const inicioInput = row.querySelector('.inicio');
-                    const finalInput = row.querySelector('.final');
-                    const litroInput = row.querySelector('.litro');
-                    const precioTotalInput = row.querySelector('.precio-total');
-                    const valorFinal = finalInput.value;
-                    finalInput.value = '';
-                    litroInput.value = '';
-                    precioTotalInput.value = '';
-                    inicioInput.value = valorFinal;
-                });
-            }
+            // ------------------------------------------------------------------------
+            // MEJORA LÓGICA: Persistencia de datos con LocalStorage
+            // ------------------------------------------------------------------------
+            function saveState() {
+                try {
+                    // Antes de guardar, recolectar datos de inputs
+                    document.querySelectorAll('.fuel-table input.inicio, .fuel-table input.final').forEach(input => {
+                        const pico = input.dataset.pico;
+                        const manguera = input.dataset.manguera;
+                        const key = `p${pico}-m${manguera}`;
+                        if (!appState.currentClosing.fuelData[key]) appState.currentClosing.fuelData[key] = {};
+                        appState.currentClosing.fuelData[key][input.classList.contains('inicio') ? 'inicio' : 'final'] = input.value;
+                    });
+                    appState.currentClosing.efectivo = document.getElementById('efectivo').value;
+                    appState.currentClosing.playero = document.getElementById('playero').value;
+                    appState.currentClosing.notas = document.getElementById('notas-textarea').value;
 
-            calcularBtn.addEventListener('click', calcularTotalCombustibles);
-
-            borrarBtn.addEventListener('click', function() {
-                if (confirm("¿Está seguro de que desea borrar los datos de los surtidores? El N° Final se moverá a N° Inicio.")) {
-                    fuelTables.forEach(table => borrarTabla(table));
-                    calcularTotalCombustibles();
+                    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(appState));
+                } catch (e) {
+                    console.error("Error al guardar el estado:", e);
+                    showToast("No se pudo guardar el estado. El almacenamiento podría estar lleno.", "error");
                 }
-            });
+            }
 
-            registrarBtn.addEventListener('click', function() {
-                alert('Función de REGISTRAR no implementada aún. Aquí se guardarían los datos del cierre.');
-                // Lógica futura...
-            });
+            function loadState() {
+                const savedState = localStorage.getItem(APP_STORAGE_KEY);
+                if (savedState) {
+                    try {
+                        appState = JSON.parse(savedState);
+                        // Asegurarse de que el estado cargado tiene todas las propiedades por defecto
+                        const defaultState = getDefaultState();
+                        appState.config = { ...defaultState.config, ...appState.config };
+                        appState.currentClosing = { ...defaultState.currentClosing, ...appState.currentClosing };
+                        appState.currentClosing.items = { ...defaultState.currentClosing.items, ...appState.currentClosing.items };
+                        showToast("Datos anteriores cargados.", "info");
+                    } catch (e) {
+                        console.error("Error al cargar el estado guardado, usando valores por defecto.", e);
+                        appState = getDefaultState();
+                    }
+                }
+            }
 
-            fuelTables.forEach(table => {
-                table.addEventListener('input', (event) => {
-                    if (event.target.classList.contains('inicio') || event.target.classList.contains('final')) {
-                        calcularTotalCombustibles();
+            // ------------------------------------------------------------------------
+            // MEJORA UX: Notificaciones Toast y Modales de confirmación
+            // ------------------------------------------------------------------------
+            const toastContainer = document.getElementById('toast-container');
+            const confirmModal = document.getElementById('confirm-modal');
+
+            function showToast(message, type = 'info') { // types: info, success, error
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                let iconClass = 'fas fa-info-circle';
+                if (type === 'success') iconClass = 'fas fa-check-circle';
+                if (type === 'error') iconClass = 'fas fa-exclamation-triangle';
+                toast.innerHTML = `<i class="${iconClass}"></i> ${message}`;
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 4000);
+            }
+
+            function showConfirmation(title, body) {
+                return new Promise((resolve) => {
+                    document.getElementById('confirm-title').textContent = title;
+                    document.getElementById('confirm-body').innerHTML = body;
+                    confirmModal.classList.add('show');
+
+                    const yesBtn = document.getElementById('confirm-yes-btn');
+                    const noBtn = document.getElementById('confirm-no-btn');
+
+                    const clickHandler = (e) => {
+                        confirmModal.classList.remove('show');
+                        yesBtn.removeEventListener('click', clickHandler);
+                        noBtn.removeEventListener('click', clickHandler);
+                        resolve(e.target === yesBtn);
+                    };
+
+                    yesBtn.addEventListener('click', clickHandler);
+                    noBtn.addEventListener('click', clickHandler);
+                });
+            }
+
+
+            // ------------------------------------------------------------------------
+            // Selectores Globales (agrupados para claridad)
+            // ------------------------------------------------------------------------
+            const UI = {
+                playeroSelect: document.getElementById('playero'),
+                totalCombustiblesSpan: document.getElementById('total-combustibles'),
+                totalCombustiblesResumenSpan: document.getElementById('total-combustibles-resumen'),
+                efectivoInput: document.getElementById('efectivo'),
+                totalCajaSpan: document.getElementById('total-caja'),
+                diferenciaSpan: document.getElementById('diferencia'),
+                calcularBtn: document.getElementById('calcular-btn'),
+                borrarBtn: document.getElementById('borrar-btn'),
+                registrarBtn: document.getElementById('registrar-btn'),
+                fuelTables: document.querySelectorAll('.fuel-table'),
+                notasTextarea: document.getElementById('notas-textarea'),
+
+                // ... otros selectores ...
+                imprimirBtn: document.getElementById('imprimir-btn'),
+                configBtn: document.getElementById('config-btn'),
+                printModal: document.getElementById('print-modal'),
+                printButtonFinal: document.getElementById('print-btn-final'),
+                printContent: document.getElementById('print-content'),
+                
+                configModal: document.getElementById('config-modal'),
+                saveConfigBtn: document.getElementById('save-config-btn'),
+                resetAppBtn: document.getElementById('reset-app-btn'),
+
+                columnContents: {
+                    aceites: document.getElementById('aceites-list'),
+                    vales: document.getElementById('vales-list'),
+                    tarjetas: document.getElementById('tarjetas-list'),
+                    transferencias: document.getElementById('transferencias-list'),
+                },
+                columnTotals: {
+                    aceites: document.getElementById('total-aceites'),
+                    vales: document.getElementById('total-vales'),
+                    tarjetas: document.getElementById('total-tarjetas'),
+                    transferencias: document.getElementById('total-transferencias'),
+                }
+            };
+
+            const modals = {
+                aceite: document.getElementById('aceite-modal'),
+                vale: document.getElementById('vale-modal'),
+                tarjeta: document.getElementById('tarjeta-modal'),
+                transferencia: document.getElementById('transferencia-modal'),
+                config: document.getElementById('config-modal'),
+                print: document.getElementById('print-modal'),
+                confirm: document.getElementById('confirm-modal')
+            };
+
+            // ------------------------------------------------------------------------
+            // Lógica de Renderizado (Actualizar UI desde el estado)
+            // ------------------------------------------------------------------------
+            function renderAll() {
+                renderConfigModal(); // Incluye playeros y clientes
+                renderFuelTablesFromState();
+                UI.efectivoInput.value = appState.currentClosing.efectivo;
+                UI.playeroSelect.value = appState.currentClosing.playero;
+                UI.notasTextarea.value = appState.currentClosing.notas;
+
+                Object.keys(appState.currentClosing.items).forEach(type => {
+                    renderColumn(type);
+                });
+                
+                updateAllTotals();
+            }
+            
+            function renderFuelTablesFromState() {
+                document.querySelectorAll('.fuel-table input.inicio, .fuel-table input.final').forEach(input => {
+                    const pico = input.dataset.pico;
+                    const manguera = input.dataset.manguera;
+                    const key = `p${pico}-m${manguera}`;
+                    const type = input.classList.contains('inicio') ? 'inicio' : 'final';
+                    if (appState.currentClosing.fuelData[key] && appState.currentClosing.fuelData[key][type]) {
+                        input.value = appState.currentClosing.fuelData[key][type];
+                    } else {
+                        input.value = '';
                     }
                 });
-            });
 
-            // ------------------------------------------------------------------------
-            // PANEL 3: Registro de Caja (Items y Modales)
-            // ------------------------------------------------------------------------
-            function openModal(modal) { modal.style.display = 'block'; }
-
-            function closeModal(modal) {
-                modal.style.display = 'none';
-                if (modal === aceiteModal) aceiteSelect.value = '';
-                if (modal === valeModal) { valeNombreSelect.value = ''; valeCombustibleSelect.value = ''; valeLitroInput.value = ''; valePrecioInput.value = ''; }
-                if (modal === tarjetaModal) tarjetaMontoInput.value = '';
-                if (modal === transferenciaModal) { transferenciaNombreInput.value = ''; transferenciaCombustibleSelect.value = ''; transferenciaLitroInput.value = ''; transferenciaPrecioInput.value = ''; }
-                if (modal === configModal) { configSections.style.display = 'none'; enableConfigBtn.style.display = 'block'; }
+                UI.fuelTables.forEach(table => {
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                         const fuelType = row.dataset.fuelType;
+                         const precioUnitarioInput = row.querySelector('.precio-unitario');
+                         precioUnitarioInput.value = (appState.config.fuelPrices[fuelType] || 0).toFixed(2);
+                    });
+                });
             }
 
-            addAceiteBtn.addEventListener('click', () => { populateAceiteSelect(); openModal(aceiteModal); });
-            addValeBtn.addEventListener('click', () => { renderClientes(); openModal(valeModal); }); // MODIFICACIÓN 1: Renderizar clientes al abrir modal de vales
-            addTarjetaBtn.addEventListener('click', () => openModal(tarjetaModal));
-            addTransferenciaBtn.addEventListener('click', () => { updateTransferenciaFecha(); openModal(transferenciaModal); });
-
-            closeButtons.forEach(button => button.addEventListener('click', function() { closeModal(this.closest('.modal')); }));
-            window.addEventListener('click', function(event) { if (event.target.classList.contains('modal')) closeModal(event.target); });
-
-            function generateUniqueId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 7); }
-
-            function createItemElement(text, value, id) {
-                const item = document.createElement('div');
-                item.classList.add('item');
-                item.dataset.value = value; item.dataset.id = id;
-                const itemDetails = document.createElement('div');
-                itemDetails.classList.add('item-details'); itemDetails.textContent = text; itemDetails.title = text;
-                const itemCheckbox = document.createElement('input');
-                itemCheckbox.type = 'checkbox'; itemCheckbox.classList.add('item-checkbox'); itemCheckbox.value = id;
-                item.appendChild(itemDetails); item.appendChild(itemCheckbox);
-                return item;
+            function renderColumn(type) {
+                const listElement = UI.columnContents[type];
+                const items = appState.currentClosing.items[type];
+                listElement.innerHTML = ''; // Limpiar
+                items.forEach(item => {
+                    const itemEl = createItemElement(item.text, item.value, item.id);
+                    listElement.appendChild(itemEl);
+                });
+                updateColumnTotal(type);
             }
+            
+            function renderConfigModal() {
+                const { fuelPrices, aceitesLubricantes, playeros, clientes } = appState.config;
+                document.getElementById('config-vpower-diesel').value = fuelPrices['V-POWER DIESEL'];
+                document.getElementById('config-vpower-nafta').value = fuelPrices['V-POWER NAFTA'];
+                document.getElementById('config-nafta-super').value = fuelPrices['NAFTA SUPER'];
+                document.getElementById('config-formula-diesel').value = fuelPrices['FORMULA DIESEL'];
 
-            function addItem(listElement, itemsArray, itemData, totalSpan) {
-                const newItemElement = createItemElement(itemData.text, itemData.value, itemData.id);
-                listElement.appendChild(newItemElement);
-                itemsArray.push(itemData);
-                updateTotal(itemsArray, totalSpan);
-            }
-
-            function removeSelectedItems(listElement, itemsArray, totalSpan) {
-                const checkboxes = listElement.querySelectorAll('.item-checkbox:checked');
-                const idsToRemove = Array.from(checkboxes).map(cb => cb.value);
-                if (idsToRemove.length === 0) { alert("Seleccione al menos un item para quitar."); return itemsArray; } // Devolver original si no hay selección
-                checkboxes.forEach(checkbox => checkbox.closest('.item').remove());
-                const filteredArray = itemsArray.filter(item => !idsToRemove.includes(item.id)); // Crear nuevo array filtrado
-                updateTotal(filteredArray, totalSpan);
-                return filteredArray; // Devolver el nuevo array filtrado
-            }
-
-
-            function updateTotal(itemsArray, totalSpan) {
-                let total = itemsArray.reduce((sum, item) => sum + parseFloat(item.value), 0);
-                totalSpan.textContent = '$' + total.toFixed(2);
-                updateTotalCaja(); // MODIFICACIÓN 3: Asegura que el total de caja se actualice
-            }
-
-            function updateTransferenciaFecha() {
-                const now = new Date();
-                const day = String(now.getDate()).padStart(2, '0');
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const year = now.getFullYear();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                transferenciaFechaSpan.textContent = `${day}/${month}/${year} ${hours}:${minutes}`;
-            }
-
-            function populateAceiteSelect() {
-                aceiteSelect.innerHTML = '<option value="">Seleccionar producto...</option>';
-                const sortedKeys = Object.keys(aceitesLubricantes).sort();
-                for (const producto of sortedKeys) {
-                    const precio = aceitesLubricantes[producto];
-                    const option = document.createElement('option');
-                    option.value = producto; option.dataset.price = precio;
-                    option.textContent = `${producto} - $${precio.toFixed(2)}`;
-                    aceiteSelect.appendChild(option);
-                }
-            }
-
-            addAceiteConfirmBtn.addEventListener('click', function() {
-                const selectedOption = aceiteSelect.options[aceiteSelect.selectedIndex];
-                const nombreProducto = selectedOption.value;
-                const precio = parseFloat(selectedOption.dataset.price);
-                if (nombreProducto && !isNaN(precio)) {
-                    const itemData = { id: generateUniqueId(), text: `${nombreProducto} - $${precio.toFixed(2)}`, value: precio };
-                    addItem(aceitesList, aceitesItems, itemData, totalAceitesSpan);
-                    closeModal(aceiteModal);
-                } else alert('Por favor, seleccione un producto válido.');
-            });
-
-            addValeConfirmBtn.addEventListener('click', function() {
-                const nombre = valeNombreSelect.value.trim();
-                const combustible = valeCombustibleSelect.value;
-                const litros = parseFloat(valeLitroInput.value) || 0;
-                const precioManual = parseFloat(valePrecioInput.value) || 0;
-                if (!nombre) { alert('Por favor, seleccione o ingrese un nombre de cliente.'); return; }
-                if (!combustible && litros > 0 && precioManual === 0) { alert('Por favor, seleccione un tipo de combustible si ingresó litros.'); return; }
-                if (litros <= 0 && precioManual <= 0) { alert('Por favor, ingrese Litros o un Precio para el vale/cheque.'); return; }
-                let precioUnitario = fuelPrices[combustible] || 0;
-                let totalValue = precioManual > 0 ? precioManual : litros * precioUnitario;
-                let itemText = `${nombre}`;
-                if (combustible) itemText += ` - ${combustible}`;
-                if (litros > 0) itemText += ` - ${litros.toFixed(2)} L`;
-                itemText += ` - $${totalValue.toFixed(2)}`;
-                const itemData = { id: generateUniqueId(), text: itemText, value: totalValue };
-                addItem(valesList, valesItems, itemData, totalValesSpan);
-                closeModal(valeModal);
-            });
-
-            addTarjetaConfirmBtn.addEventListener('click', function() {
-                const monto = parseFloat(tarjetaMontoInput.value) || 0;
-                if (monto > 0) {
-                    const itemData = { id: generateUniqueId(), text: `Venta Tarjeta - $${monto.toFixed(2)}`, value: monto };
-                    addItem(tarjetasList, tarjetasItems, itemData, totalTarjetasSpan);
-                    closeModal(tarjetaModal);
-                } else alert('Por favor, ingrese un monto válido para la tarjeta.');
-            });
-
-            addTransferenciaConfirmBtn.addEventListener('click', function() {
-                const nombre = transferenciaNombreInput.value.trim();
-                const combustible = transferenciaCombustibleSelect.value;
-                const litros = parseFloat(transferenciaLitroInput.value) || 0;
-                const precioManual = parseFloat(transferenciaPrecioInput.value) || 0;
-                if (!nombre) { alert('Por favor, ingrese un Alias/Nombre de Cliente.'); return; }
-                if (!combustible && litros > 0 && precioManual === 0) { alert('Por favor, seleccione un tipo de combustible si ingresó litros.'); return; }
-                if (litros <= 0 && precioManual <= 0) { alert('Por favor, ingrese Litros o un Precio.'); return; }
-                let precioUnitario = fuelPrices[combustible] || 0;
-                let totalValue = precioManual > 0 ? precioManual : litros * precioUnitario;
-                let itemText = `${nombre}`;
-                if (combustible) itemText += ` - ${combustible}`;
-                if (litros > 0) itemText += ` - ${litros.toFixed(2)} L`;
-                itemText += ` - $${totalValue.toFixed(2)}`;
-                const itemData = { id: generateUniqueId(), text: itemText, value: totalValue };
-                addItem(transferenciasList, transferenciasItems, itemData, totalTransferenciasSpan);
-                closeModal(transferenciaModal);
-            });
-
-            // Eventos para quitar items (actualizados para reasignar el array filtrado)
-            removeAceiteBtn.addEventListener('click', () => { aceitesItems = removeSelectedItems(aceitesList, aceitesItems, totalAceitesSpan); });
-            removeValeBtn.addEventListener('click', () => { valesItems = removeSelectedItems(valesList, valesItems, totalValesSpan); });
-            removeTarjetaBtn.addEventListener('click', () => { tarjetasItems = removeSelectedItems(tarjetasList, tarjetasItems, totalTarjetasSpan); });
-            removeTransferenciaBtn.addEventListener('click', () => { transferenciasItems = removeSelectedItems(transferenciasList, transferenciasItems, totalTransferenciasSpan); });
-
-
-            // ------------------------------------------------------------------------
-            // PANEL 4: Total Caja, Resumen, Notas y Opciones
-            // ------------------------------------------------------------------------
-            function updateTotalCaja() {
-                let efectivo = parseFloat(efectivoInput.value) || 0;
-                // Sumar directamente desde los arrays de items
-                let totalAceites = aceitesItems.reduce((sum, item) => sum + item.value, 0);
-                let totalVales = valesItems.reduce((sum, item) => sum + item.value, 0);
-                let totalTarjetas = tarjetasItems.reduce((sum, item) => sum + item.value, 0);
-                let totalTransferencias = transferenciasItems.reduce((sum, item) => sum + item.value, 0);
-                let totalCaja = efectivo + totalAceites + totalVales + totalTarjetas + totalTransferencias;
-                totalCajaSpan.textContent = '$' + totalCaja.toFixed(2);
-                updateDiferencia(); // MODIFICACIÓN 3: Asegura que la diferencia se actualice
-            }
-
-            function updateDiferencia() {
-                let totalCombustibles = parseFloat(totalCombustiblesResumenSpan.textContent.replace('$', '')) || 0;
-                let totalCaja = parseFloat(totalCajaSpan.textContent.replace('$', '')) || 0;
-                let diferencia = totalCaja - totalCombustibles;
-                diferenciaSpan.textContent = '$' + diferencia.toFixed(2);
-                diferenciaSpan.removeAttribute('data-positive');
-                diferenciaSpan.removeAttribute('data-negative');
-                if (diferencia > 0) diferenciaSpan.setAttribute('data-positive', 'true');
-                else if (diferencia < 0) diferenciaSpan.setAttribute('data-negative', 'true');
-            }
-
-            // MODIFICACIÓN 3: El input de efectivo ya dispara updateTotalCaja en su evento 'input'
-            efectivoInput.addEventListener('input', updateTotalCaja);
-
-            // --- CONFIGURACIÓN ---
-            configBtn.addEventListener('click', () => {
-                loadConfigIntoModal();
-                configSections.style.display = 'none';
-                enableConfigBtn.style.display = 'block';
-                openModal(configModal);
-            });
-
-            enableConfigBtn.addEventListener('click', function() {
-                const confirm1 = confirm('¿Está seguro de que desea habilitar la configuración? Los cambios pueden afectar los cálculos.');
-                if (confirm1) {
-                    const confirm2 = confirm('¡ÚLTIMA CONFIRMACIÓN! ¿Realmente desea modificar la configuración del sistema?');
-                    if (confirm2) { configSections.style.display = 'block'; enableConfigBtn.style.display = 'none'; }
-                }
-            });
-
-            function createAceiteConfigField(id, nombre = '', precio = 0) {
-                const div = document.createElement('div');
-                div.classList.add('form-group'); div.dataset.itemId = id;
-                div.innerHTML = `
-                    <label for="config-aceite-nombre-${id}">Nombre:</label>
-                    <input type="text" id="config-aceite-nombre-${id}" class="config-aceite-nombre" value="${nombre}" placeholder="Nombre Producto">
-                    <label for="config-aceite-precio-${id}">Precio:</label>
-                    <input type="number" id="config-aceite-precio-${id}" class="config-aceite-precio" value="${precio}" min="0" step="0.01" placeholder="0.00">
-                    <button type="button" class="remove-btn remove-aceite-config-btn" data-id="${id}" title="Quitar este producto">×</button>
-                `;
-                div.querySelector('.remove-aceite-config-btn').addEventListener('click', function() { div.remove(); });
-                return div;
-            }
-
-            addAceiteConfigBtn.addEventListener('click', function() {
-                const uniqueId = generateUniqueId();
-                const newField = createAceiteConfigField(uniqueId);
-                aceitesConfigForm.appendChild(newField);
-            });
-
-            function loadConfigIntoModal() {
-                configFuelVPowerDiesel.value = fuelPrices['V-POWER DIESEL'];
-                configFuelVPowerNafta.value = fuelPrices['V-POWER NAFTA'];
-                configFuelNaftaSuper.value = fuelPrices['NAFTA SUPER'];
-                configFuelFormulaDiesel.value = fuelPrices['FORMULA DIESEL'];
+                const aceitesConfigForm = document.getElementById('aceites-config-form');
                 aceitesConfigForm.innerHTML = '';
                 for (const nombre in aceitesLubricantes) {
                     const id = generateUniqueId();
@@ -2133,288 +2082,570 @@
                     const field = createAceiteConfigField(id, nombre, precio);
                     aceitesConfigForm.appendChild(field);
                 }
-                renderPlayeros(); // Asegurar que la lista de playeros esté actualizada en config
-                renderClientes(); // MODIFICACIÓN 1: Asegurar lista de clientes actualizada
+                
+                renderPlayeros();
+                renderClientes();
             }
-
-            function saveAceitesConfigFromModal() {
-                const newAceitesLubricantes = {};
-                const aceiteConfigFields = aceitesConfigForm.querySelectorAll('.form-group');
-                aceiteConfigFields.forEach(field => {
-                    const nombreInput = field.querySelector('.config-aceite-nombre');
-                    const precioInput = field.querySelector('.config-aceite-precio');
-                    const nombre = nombreInput.value.trim();
-                    const precio = parseFloat(precioInput.value) || 0;
-                    if (nombre) newAceitesLubricantes[nombre] = precio;
-                });
-                aceitesLubricantes = newAceitesLubricantes;
-            }
-
-            saveConfigBtn.addEventListener('click', function() {
-                const newVpowerDiesel = parseFloat(configFuelVPowerDiesel.value) || 0;
-                const newVpowerNafta = parseFloat(configFuelVPowerNafta.value) || 0;
-                const newNaftaSuper = parseFloat(configFuelNaftaSuper.value) || 0;
-                const newFormulaDiesel = parseFloat(configFuelFormulaDiesel.value) || 0;
-                if (newVpowerDiesel < 0 || newVpowerNafta < 0 || newNaftaSuper < 0 || newFormulaDiesel < 0) { alert("Los precios de los combustibles no pueden ser negativos."); return; }
-                fuelPrices['V-POWER DIESEL'] = newVpowerDiesel;
-                fuelPrices['V-POWER NAFTA'] = newVpowerNafta;
-                fuelPrices['NAFTA SUPER'] = newNaftaSuper;
-                fuelPrices['FORMULA DIESEL'] = newFormulaDiesel;
-                saveAceitesConfigFromModal();
-                // Playeros y Clientes se guardan implícitamente al modificar los arrays
-                alert("Configuración guardada exitosamente.");
-                populateAceiteSelect();
-                renderPlayeros(); // Actualizar select principal de playeros
-                renderClientes(); // MODIFICACIÓN 1: Actualizar select de nombres en Vales
-                calcularTotalCombustibles();
-                closeModal(configModal);
-            });
-
-            // --- Gestión de Playeros ---
+            
             function renderPlayeros() {
-                playerosListConfig.innerHTML = ''; // Limpiar lista en config
-                playeroSelect.innerHTML = '<option value="">Seleccionar playero</option>'; // Limpiar select principal
-                playeros.sort();
-                playeros.forEach(nombre => {
+                const playerosListConfig = document.getElementById('playeros-list-config');
+                playerosListConfig.innerHTML = '';
+                UI.playeroSelect.innerHTML = '<option value="">Seleccionar playero</option>';
+                appState.config.playeros.sort().forEach(nombre => {
                     const option = document.createElement('option');
-                    option.value = nombre; option.textContent = nombre;
-                    playeroSelect.appendChild(option); // Añadir al select principal
-                    const playeroItem = document.createElement('div');
-                    playeroItem.classList.add('playero-item'); // Asumiendo clase CSS existente
-                    playeroItem.innerHTML = `<span>${nombre}</span><button type="button" class="remove-btn remove-playero-btn" data-playero="${nombre}" title="Quitar a ${nombre}">×</button>`;
-                    playerosListConfig.appendChild(playeroItem); // Añadir a la lista en config
+                    option.value = option.textContent = nombre;
+                    UI.playeroSelect.appendChild(option);
+                    const item = document.createElement('div');
+                    item.className = 'playero-item';
+                    item.innerHTML = `<span>${nombre}</span><button type="button" class="remove-btn remove-playero-btn" data-playero="${nombre}" title="Quitar a ${nombre}">×</button>`;
+                    playerosListConfig.appendChild(item);
                 });
             }
 
-            addPlayeroBtn.addEventListener('click', function() {
-                const newPlayeroName = newPlayeroInput.value.trim();
-                if (newPlayeroName && !playeros.includes(newPlayeroName)) {
-                    playeros.push(newPlayeroName);
-                    newPlayeroInput.value = ''; renderPlayeros();
-                } else if (playeros.includes(newPlayeroName)) alert(`El playero "${newPlayeroName}" ya existe.`);
-                else alert("Ingrese un nombre válido para el playero.");
-            });
-
-            playerosListConfig.addEventListener('click', function(event) {
-                if (event.target.classList.contains('remove-playero-btn')) {
-                    const playeroToRemove = event.target.dataset.playero;
-                    if (confirm(`¿Está seguro de que desea eliminar a "${playeroToRemove}"?`)) {
-                        playeros = playeros.filter(p => p !== playeroToRemove); renderPlayeros();
-                    }
-                }
-            });
-
-            // --- MODIFICACIÓN 1: Gestión de Clientes ---
             function renderClientes() {
-                clientesListConfig.innerHTML = ''; // Limpiar lista en config
-                valeNombreSelect.innerHTML = '<option value="">Seleccionar nombre</option>'; // Limpiar select en modal Vales
-                clientes.sort();
-                clientes.forEach(nombre => {
-                    // Añadir al select del modal de Vales
+                const clientesListConfig = document.getElementById('clientes-list-config');
+                const valeNombreSelect = document.getElementById('vale-nombre');
+                clientesListConfig.innerHTML = '';
+                valeNombreSelect.innerHTML = '<option value="">Seleccionar nombre</option>';
+                appState.config.clientes.sort().forEach(nombre => {
                     const option = document.createElement('option');
-                    option.value = nombre; option.textContent = nombre;
+                    option.value = option.textContent = nombre;
                     valeNombreSelect.appendChild(option);
-
-                    // Añadir a la lista visual en config
-                    const clienteItem = document.createElement('div');
-                    clienteItem.classList.add('cliente-item'); // Crear clase CSS si no existe, similar a playero-item
-                    clienteItem.innerHTML = `<span>${nombre}</span><button type="button" class="remove-btn remove-cliente-btn" data-cliente="${nombre}" title="Quitar a ${nombre}">×</button>`;
-                    clientesListConfig.appendChild(clienteItem);
+                    const item = document.createElement('div');
+                    item.className = 'cliente-item';
+                    item.innerHTML = `<span>${nombre}</span><button type="button" class="remove-btn remove-cliente-btn" data-cliente="${nombre}" title="Quitar a ${nombre}">×</button>`;
+                    clientesListConfig.appendChild(item);
                 });
             }
 
-            addClienteBtn.addEventListener('click', function() {
-                const newClienteName = newClienteInput.value.trim();
-                if (newClienteName && !clientes.includes(newClienteName)) {
-                    clientes.push(newClienteName);
-                    newClienteInput.value = '';
-                    renderClientes(); // Actualizar listas
-                } else if (clientes.includes(newClienteName)) {
-                    alert(`El cliente "${newClienteName}" ya existe.`);
-                } else {
-                    alert("Ingrese un nombre válido para el cliente.");
-                }
-            });
 
-            clientesListConfig.addEventListener('click', function(event) {
-                if (event.target.classList.contains('remove-cliente-btn')) {
-                    const clienteToRemove = event.target.dataset.cliente;
-                    if (confirm(`¿Está seguro de que desea eliminar al cliente "${clienteToRemove}"?`)) {
-                        clientes = clientes.filter(c => c !== clienteToRemove);
-                        renderClientes(); // Actualizar listas
+            // ------------------------------------------------------------------------
+            // Funciones de Cálculo y Actualización
+            // ------------------------------------------------------------------------
+             function formatCurrency(value) {
+                return `$${(value || 0).toFixed(2)}`;
+            }
+
+            function updateAllTotals() {
+                let totalGlobal = 0;
+                UI.fuelTables.forEach(table => {
+                    totalGlobal += calcularTabla(table);
+                });
+                UI.totalCombustiblesSpan.textContent = formatCurrency(totalGlobal);
+                UI.totalCombustiblesResumenSpan.textContent = formatCurrency(totalGlobal);
+
+                updateTotalCaja(); // Esto llamará a updateDiferencia
+            }
+
+            function calcularTabla(table) {
+                let totalTabla = 0;
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const inicioInput = row.querySelector('.inicio');
+                    const finalInput = row.querySelector('.final');
+                    const litroInput = row.querySelector('.litro');
+                    const precioUnitarioInput = row.querySelector('.precio-unitario');
+                    const precioTotalInput = row.querySelector('.precio-total');
+                    
+                    const inicio = parseFloat(inicioInput.value) || 0;
+                    const final = parseFloat(finalInput.value) || 0;
+                    
+                    finalInput.classList.remove('invalid');
+                    let litros = 0;
+                    if (final > 0 && final < inicio) {
+                        finalInput.classList.add('invalid');
+                    } else if (final >= inicio) {
+                        litros = final - inicio;
                     }
+                    
+                    const precioUnitario = parseFloat(precioUnitarioInput.value) || 0;
+                    const precioTotal = litros * precioUnitario;
+                    
+                    litroInput.value = litros.toFixed(2);
+                    precioTotalInput.value = precioTotal.toFixed(2);
+                    totalTabla += precioTotal;
+                });
+                return totalTabla;
+            }
+
+            function updateColumnTotal(type) {
+                const total = appState.currentClosing.items[type].reduce((sum, item) => sum + parseFloat(item.value), 0);
+                UI.columnTotals[type].textContent = formatCurrency(total);
+            }
+
+            function updateTotalCaja() {
+                const efectivo = parseFloat(UI.efectivoInput.value) || 0;
+                let totalItems = 0;
+                Object.keys(appState.currentClosing.items).forEach(type => {
+                    totalItems += appState.currentClosing.items[type].reduce((sum, item) => sum + item.value, 0);
+                });
+                const totalCaja = efectivo + totalItems;
+                UI.totalCajaSpan.textContent = formatCurrency(totalCaja);
+                updateDiferencia();
+            }
+
+            function updateDiferencia() {
+                const totalCombustibles = parseFloat(UI.totalCombustiblesResumenSpan.textContent.replace('$', '')) || 0;
+                const totalCaja = parseFloat(UI.totalCajaSpan.textContent.replace('$', '')) || 0;
+                const diferencia = totalCaja - totalCombustibles;
+                UI.diferenciaSpan.textContent = formatCurrency(diferencia);
+                UI.diferenciaSpan.classList.toggle('positive', diferencia > 0);
+                UI.diferenciaSpan.classList.toggle('negative', diferencia < 0);
+            }
+
+            // ------------------------------------------------------------------------
+            // Lógica de Modales
+            // ------------------------------------------------------------------------
+            function openModal(modal) {
+                modal.classList.add('show');
+                const firstInput = modal.querySelector('input, select');
+                if (firstInput) {
+                    setTimeout(() => firstInput.focus(), 100); // Dar tiempo a la transición
+                }
+            }
+
+            function closeModal(modal) {
+                modal.classList.remove('show');
+                // Limpiar inputs del modal
+                modal.querySelectorAll('input, select').forEach(el => {
+                    if (el.type === 'select-one') el.selectedIndex = 0;
+                    else if (el.type !== 'button') el.value = '';
+                });
+            }
+
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal(modal);
+                });
+                modal.querySelector('.close')?.addEventListener('click', () => closeModal(modal));
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === "Escape") {
+                    document.querySelectorAll('.modal.show').forEach(closeModal);
                 }
             });
-            // --- Fin MODIFICACIÓN 1 ---
 
-            // --- IMPRESIÓN ---
-            imprimirBtn.addEventListener('click', function() {
-                calcularTotalCombustibles(); // Recalcular por si acaso
-                updateTotalCaja();          // Recalcular por si acaso
 
-                const playero = playeroSelect.value || 'No especificado';
+            // ------------------------------------------------------------------------
+            // Lógica de Items (Agregar/Quitar)
+            // ------------------------------------------------------------------------
+            function generateUniqueId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 7); }
+
+            function createItemElement(text, value, id) {
+                const item = document.createElement('div');
+                item.className = 'item item-enter';
+                item.dataset.value = value;
+                item.dataset.id = id;
+                item.innerHTML = `
+                    <div class="item-details" title="${text}">${text}</div>
+                    <input type="checkbox" class="item-checkbox" value="${id}">
+                `;
+                // Trigger animation
+                setTimeout(() => item.classList.remove('item-enter'), 10);
+                return item;
+            }
+
+            function addItem(type, itemData) {
+                appState.currentClosing.items[type].push(itemData);
+                renderColumn(type);
+                updateTotalCaja();
+                saveState();
+                showToast(`Item agregado a ${type.charAt(0).toUpperCase() + type.slice(1)}.`, 'success');
+            }
+
+            function removeSelectedItems(type) {
+                const listElement = UI.columnContents[type];
+                const checkedIds = [...listElement.querySelectorAll('.item-checkbox:checked')].map(cb => cb.value);
+
+                if (checkedIds.length === 0) {
+                    showToast("Seleccione al menos un item para quitar.", "error");
+                    return;
+                }
+
+                // MEJORA UX: Animar salida
+                checkedIds.forEach(id => {
+                    const itemEl = listElement.querySelector(`.item[data-id="${id}"]`);
+                    if (itemEl) itemEl.classList.add('item-exit');
+                });
+                
+                setTimeout(() => {
+                    appState.currentClosing.items[type] = appState.currentClosing.items[type].filter(item => !checkedIds.includes(item.id));
+                    renderColumn(type);
+                    updateTotalCaja();
+                    saveState();
+                    showToast(`${checkedIds.length} item(s) quitado(s).`, 'info');
+                }, 300); // Coincidir con la duración de la transición CSS
+            }
+
+
+            // ------------------------------------------------------------------------
+            // Event Listeners
+            // ------------------------------------------------------------------------
+            
+            // --- Panel 1 ---
+            function setupPanel1Listeners() {
+                UI.playeroSelect.addEventListener('change', saveState);
+            }
+
+            // --- Panel 2 ---
+            function setupPanel2Listeners() {
+                document.querySelector('.tables-container').addEventListener('input', (e) => {
+                    if (e.target.matches('.inicio, .final')) {
+                        updateAllTotals();
+                        saveState(); // Guardar al cambiar valores de surtidores
+                    }
+                });
+
+                UI.calcularBtn.addEventListener('click', () => {
+                    updateAllTotals();
+                    saveState();
+                    showToast("Totales recalculados.", "info");
+                });
+
+                UI.borrarBtn.addEventListener('click', async () => {
+                    const confirmed = await showConfirmation('Borrar Datos de Surtidores', '¿Está seguro? El <b>N° Final</b> se moverá a <b>N° Inicio</b> en todas las mangueras.');
+                    if (confirmed) {
+                        UI.fuelTables.forEach(table => {
+                            table.querySelectorAll('tbody tr').forEach(row => {
+                                const finalInput = row.querySelector('.final');
+                                row.querySelector('.inicio').value = finalInput.value;
+                                finalInput.value = '';
+                            });
+                        });
+                        appState.currentClosing.fuelData = {}; // Limpiar estado
+                        updateAllTotals();
+                        saveState();
+                        showToast("Datos de surtidores limpiados.", "success");
+                    }
+                });
+                
+                UI.registrarBtn.addEventListener('click', () => {
+                    showToast("Función 'Registrar' no implementada. Aquí se enviaría a un backend.", "info");
+                });
+            }
+
+            // --- Panel 3 ---
+            function setupPanel3Listeners() {
+                UI.efectivoInput.addEventListener('input', () => {
+                    updateTotalCaja();
+                    saveState();
+                });
+                
+                // Botones Agregar
+                document.getElementById('add-aceite-btn').addEventListener('click', () => {
+                    const select = document.getElementById('aceite-select');
+                    select.innerHTML = '<option value="">Seleccionar producto...</option>';
+                    Object.entries(appState.config.aceitesLubricantes).sort().forEach(([nombre, precio]) => {
+                        const option = document.createElement('option');
+                        option.value = nombre;
+                        option.dataset.price = precio;
+                        option.textContent = `${nombre} - ${formatCurrency(precio)}`;
+                        select.appendChild(option);
+                    });
+                    openModal(modals.aceite);
+                });
+                document.getElementById('add-vale-btn').addEventListener('click', () => openModal(modals.vale));
+                document.getElementById('add-tarjeta-btn').addEventListener('click', () => openModal(modals.tarjeta));
+                document.getElementById('add-transferencia-btn').addEventListener('click', () => {
+                     const now = new Date();
+                     document.getElementById('transferencia-fecha').textContent = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+                     openModal(modals.transferencia);
+                });
+                
+                // Botones Quitar
+                document.getElementById('remove-aceite-btn').addEventListener('click', () => removeSelectedItems('aceites'));
+                document.getElementById('remove-vale-btn').addEventListener('click', () => removeSelectedItems('vales'));
+                document.getElementById('remove-tarjeta-btn').addEventListener('click', () => removeSelectedItems('tarjetas'));
+                document.getElementById('remove-transferencia-btn').addEventListener('click', () => removeSelectedItems('transferencias'));
+            }
+
+            // --- Panel 4 ---
+            function setupPanel4Listeners() {
+                UI.notasTextarea.addEventListener('input', saveState);
+                UI.configBtn.addEventListener('click', () => openModal(modals.config));
+                UI.imprimirBtn.addEventListener('click', setupPrintPreview);
+            }
+            
+            // --- Modales ---
+            function setupModalListeners() {
+                // Aceites
+                document.getElementById('add-aceite-confirm').addEventListener('click', () => {
+                    const select = document.getElementById('aceite-select');
+                    const selectedOption = select.options[select.selectedIndex];
+                    const nombre = selectedOption.value;
+                    const precio = parseFloat(selectedOption.dataset.price);
+                    if (nombre && !isNaN(precio)) {
+                        const itemData = { id: generateUniqueId(), text: `${nombre} - ${formatCurrency(precio)}`, value: precio };
+                        addItem('aceites', itemData);
+                        closeModal(modals.aceite);
+                    } else showToast('Por favor, seleccione un producto válido.', 'error');
+                });
+                
+                // Vales
+                document.getElementById('add-vale-confirm').addEventListener('click', () => {
+                     const nombre = document.getElementById('vale-nombre').value.trim();
+                     const combustible = document.getElementById('vale-combustible').value;
+                     const litros = parseFloat(document.getElementById('vale-litro').value) || 0;
+                     const precioManual = parseFloat(document.getElementById('vale-precio').value) || 0;
+                     if (!nombre || (litros <= 0 && precioManual <= 0)) {
+                         showToast('Complete el nombre y los litros o el precio.', 'error'); return;
+                     }
+                     let totalValue = precioManual > 0 ? precioManual : litros * (appState.config.fuelPrices[combustible] || 0);
+                     let text = `${nombre} (${combustible ? combustible + ', ' : ''}${litros > 0 ? litros.toFixed(2) + 'L' : ''}) - ${formatCurrency(totalValue)}`;
+                     addItem('vales', { id: generateUniqueId(), text, value: totalValue });
+                     closeModal(modals.vale);
+                });
+                
+                // Tarjetas
+                document.getElementById('add-tarjeta-confirm').addEventListener('click', () => {
+                    const monto = parseFloat(document.getElementById('tarjeta-monto').value) || 0;
+                    if (monto > 0) {
+                        addItem('tarjetas', { id: generateUniqueId(), text: `Venta Tarjeta - ${formatCurrency(monto)}`, value: monto });
+                        closeModal(modals.tarjeta);
+                    } else showToast('Por favor, ingrese un monto válido.', 'error');
+                });
+                
+                // Transferencias
+                document.getElementById('add-transferencia-confirm').addEventListener('click', () => {
+                     const nombre = document.getElementById('transferencia-nombre').value.trim();
+                     const combustible = document.getElementById('transferencia-combustible').value;
+                     const litros = parseFloat(document.getElementById('transferencia-litro').value) || 0;
+                     const precioManual = parseFloat(document.getElementById('transferencia-precio').value) || 0;
+                      if (!nombre || (litros <= 0 && precioManual <= 0)) {
+                         showToast('Complete el nombre y los litros o el precio.', 'error'); return;
+                     }
+                     let totalValue = precioManual > 0 ? precioManual : litros * (appState.config.fuelPrices[combustible] || 0);
+                     let text = `${nombre} (${combustible ? combustible + ', ' : ''}${litros > 0 ? litros.toFixed(2) + 'L' : ''}) - ${formatCurrency(totalValue)}`;
+                     addItem('transferencias', { id: generateUniqueId(), text, value: totalValue });
+                     closeModal(modals.transferencia);
+                });
+
+                // Configuración
+                UI.saveConfigBtn.addEventListener('click', () => {
+                    // Guardar precios de combustibles
+                    appState.config.fuelPrices['V-POWER DIESEL'] = parseFloat(document.getElementById('config-vpower-diesel').value) || 0;
+                    appState.config.fuelPrices['V-POWER NAFTA'] = parseFloat(document.getElementById('config-vpower-nafta').value) || 0;
+                    appState.config.fuelPrices['NAFTA SUPER'] = parseFloat(document.getElementById('config-nafta-super').value) || 0;
+                    appState.config.fuelPrices['FORMULA DIESEL'] = parseFloat(document.getElementById('config-formula-diesel').value) || 0;
+                    // Guardar aceites
+                    const newAceites = {};
+                    document.querySelectorAll('#aceites-config-form .form-group').forEach(field => {
+                        const nombre = field.querySelector('.config-aceite-nombre').value.trim();
+                        const precio = parseFloat(field.querySelector('.config-aceite-precio').value) || 0;
+                        if (nombre) newAceites[nombre] = precio;
+                    });
+                    appState.config.aceitesLubricantes = newAceites;
+                    // Playeros y clientes se guardan al agregarse/quitarse
+                    saveState();
+                    renderAll();
+                    showToast("Configuración guardada exitosamente.", "success");
+                    closeModal(modals.config);
+                });
+                
+                UI.resetAppBtn.addEventListener('click', async () => {
+                    const confirmed = await showConfirmation('¡ACCIÓN IRREVERSIBLE!', 'Esto borrará <b>TODA LA CONFIGURACIÓN Y DATOS GUARDADOS</b>. ¿Está absolutamente seguro?');
+                    if (confirmed) {
+                        localStorage.removeItem(APP_STORAGE_KEY);
+                        location.reload();
+                    }
+                });
+                
+                // Listeners dinámicos en Config
+                document.getElementById('aceites-config-form').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-aceite-config-btn')) e.target.closest('.form-group').remove();
+                });
+                document.getElementById('add-aceite-config-btn').addEventListener('click', () => {
+                    document.getElementById('aceites-config-form').appendChild(createAceiteConfigField(generateUniqueId()));
+                });
+                document.getElementById('add-playero-btn').addEventListener('click', () => {
+                    const input = document.getElementById('new-playero');
+                    const name = input.value.trim();
+                    if (name && !appState.config.playeros.includes(name)) {
+                        appState.config.playeros.push(name);
+                        renderPlayeros();
+                        saveState();
+                        input.value = '';
+                    }
+                });
+                document.getElementById('playeros-list-config').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-playero-btn')) {
+                        const name = e.target.dataset.playero;
+                        appState.config.playeros = appState.config.playeros.filter(p => p !== name);
+                        renderPlayeros();
+                        saveState();
+                    }
+                });
+                document.getElementById('add-cliente-btn').addEventListener('click', () => {
+                     const input = document.getElementById('new-cliente');
+                     const name = input.value.trim();
+                    if (name && !appState.config.clientes.includes(name)) {
+                        appState.config.clientes.push(name);
+                        renderClientes();
+                        saveState();
+                        input.value = '';
+                    }
+                });
+                document.getElementById('clientes-list-config').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-cliente-btn')) {
+                        const name = e.target.dataset.cliente;
+                        appState.config.clientes = appState.config.clientes.filter(c => c !== name);
+                        renderClientes();
+                        saveState();
+                    }
+                });
+
+                UI.printButtonFinal.addEventListener('click', () => window.print());
+            }
+            
+            function createAceiteConfigField(id, nombre = '', precio = 0) {
+                const div = document.createElement('div');
+                div.className = 'form-group'; div.dataset.itemId = id;
+                div.innerHTML = `
+                    <label for="config-aceite-nombre-${id}">Nombre:</label>
+                    <input type="text" id="config-aceite-nombre-${id}" class="config-aceite-nombre" value="${nombre}" placeholder="Nombre Producto">
+                    <label for="config-aceite-precio-${id}">Precio:</label>
+                    <input type="number" id="config-aceite-precio-${id}" class="config-aceite-precio" value="${precio}" min="0" step="0.01" placeholder="0.00">
+                    <button type="button" class="remove-btn remove-aceite-config-btn" data-id="${id}" title="Quitar este producto">×</button>
+                `;
+                return div;
+            }
+            
+            
+            // --- Impresión ---
+            function setupPrintPreview() {
+                updateAllTotals(); // Asegurar que todo esté calculado
+                const playero = UI.playeroSelect.value || 'No especificado';
                 const fecha = document.getElementById('current-date').textContent;
                 const hora = document.getElementById('current-time').textContent;
                 const turno = document.getElementById('current-shift').textContent;
-                // MODIFICACIÓN 2: Obtener el texto de las notas
-                const notas = notasTextarea.value;
-
-                let printContentHTML = `
-                    <style>
-                        /* Estilos embebidos (sin cambios respecto a tu versión anterior) */
-                        .print-container { font-family: Arial, sans-serif; font-size: 9pt; color: #000; width: 100%; }
-                        .print-container h1 { font-size: 14pt; text-align: center; margin: 0 0 5px 0; }
-                        .print-header { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #ccc; font-size: 8.5pt; flex-wrap: wrap;}
-                        .print-header span { display: block; margin-right: 10px; margin-bottom: 2px;}
-                        .print-summary { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 5px; border-top: 1px solid #000; font-size: 9.5pt; font-weight: bold; flex-wrap: wrap; }
-                        .print-summary span { display: block; margin-right: 15px; margin-bottom: 3px;}
-                        .print-section { margin-bottom: 10px; }
-                        .print-section h2 { font-size: 11pt; margin: 8px 0 3px 0; padding-bottom: 2px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 5px; }
-                        .print-section h2 i { font-size: 10pt; }
-                        .print-table { width: 100%; border-collapse: collapse; margin-top: 3px; table-layout: fixed; }
-                        .print-table th, .print-table td { border: 1px solid #ccc; padding: 2px 4px; font-size: 7.5pt; text-align: left; word-wrap: break-word; }
-                        .print-table th { background-color: #f2f2f2 !important; font-weight: bold; }
-                        .print-table td.number { text-align: right; }
-                        .print-table .fuel-col { width: 28%; }
-                        .print-table .num-col-short { width: 12%; }
-                        .print-table .num-col-med { width: 15%; }
-                        .print-table .num-col-large { width: 16%; }
-                        .print-list { margin: 0 0 5px 0; padding: 0; list-style: none; }
-                        .print-list h3 { font-size: 9pt; margin: 5px 0 2px 0; font-weight: bold; }
-                        .print-list li { display: flex; justify-content: space-between; font-size: 8pt; margin-bottom: 1px; padding: 1px 0; border-bottom: 1px dotted #eee; }
-                        .print-list li span:first-child { padding-right: 5px; }
-                        .print-list li span:last-child { text-align: right; font-weight: normal; }
-                        .print-total { text-align: right; font-weight: bold; font-size: 9pt; margin-top: 3px; }
-                        .print-subtotal { text-align: right; font-weight: normal; font-size: 8pt; margin-top: 2px; }
-                        .print-notes { margin-top: 15px; }
-                        .print-notes h2 { margin-bottom: 2px; }
-                        /* MODIFICACIÓN 2: Estilo para el contenido de las notas */
-                        .print-notes-content {
-                            font-size: 8pt;
-                            white-space: pre-wrap; /* Conservar saltos de línea y espacios */
-                            word-wrap: break-word; /* Romper palabras largas */
-                            padding: 5px;
-                            border: 1px solid #eee;
-                            background-color: #fdfdfd;
-                            min-height: 40px; /* Altura mínima */
-                        }
-                        .print-footer { text-align: center; font-size: 7pt; margin-top: 15px; color: #666; }
-                    </style>
-
-                    <div class="print-container">
-                        <h1>Cierre de Caja - Gasolinera</h1>
-                        <div class="print-header">
-                            <span><strong>Fecha:</strong> ${fecha}</span>
-                            <span><strong>Hora:</strong> ${hora}</span>
-                            <span><strong>Turno:</strong> ${turno}</span>
-                            <span><strong>Playero:</strong> ${playero}</span>
-                        </div>
-
-                        <div class="print-section">
-                            <h2><i class="fas fa-oil-can"></i> Combustibles</h2>
-                            <table class="print-table">
-                                <thead>
-                                   <tr>
-                                        <th class="fuel-col">Pico/Tipo</th>
-                                        <th class="num-col-med">Inicio</th>
-                                        <th class="num-col-med">Final</th>
-                                        <th class="num-col-short">Litros</th>
-                                        <th class="num-col-short">P.Unit</th>
-                                        <th class="num-col-large">P.Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-                let combustibleRowsHTML = '';
-                fuelTables.forEach((table, index) => {
-                    const picoLabel = table.parentElement.querySelector('h3').textContent.split(' ')[2];
-                    const rows = table.querySelectorAll('tbody tr');
-                    rows.forEach(row => {
-                        const combustible = row.querySelector('td:first-child').textContent;
-                        const inicio = row.querySelector('.inicio').value || '0';
-                        const final = row.querySelector('.final').value || '0';
-                        const litro = parseFloat(row.querySelector('.litro').value || '0');
-                        const precioU = parseFloat(row.querySelector('.precio-unitario').value || '0');
-                        const precioT = parseFloat(row.querySelector('.precio-total').value || '0');
-                        if (litro > 0) {
-                             combustibleRowsHTML += `<tr><td class="fuel-col">${picoLabel}/${combustible}</td><td class="number num-col-med">${inicio}</td><td class="number num-col-med">${final}</td><td class="number num-col-short">${litro.toFixed(2)}</td><td class="number num-col-short">$${precioU.toFixed(2)}</td><td class="number num-col-large"><strong>$${precioT.toFixed(2)}</strong></td></tr>`;
+                const notas = UI.notasTextarea.value;
+                
+                // MEJORA LÓGICA: Calcular resumen de combustible por tipo
+                const fuelSummary = {};
+                UI.fuelTables.forEach(table => {
+                    table.querySelectorAll('tbody tr').forEach(row => {
+                        const tipo = row.dataset.fuelType;
+                        const litros = parseFloat(row.querySelector('.litro').value) || 0;
+                        const total = parseFloat(row.querySelector('.precio-total').value) || 0;
+                        if (litros > 0) {
+                            if (!fuelSummary[tipo]) fuelSummary[tipo] = { litros: 0, total: 0 };
+                            fuelSummary[tipo].litros += litros;
+                            fuelSummary[tipo].total += total;
                         }
                     });
                 });
-                if (!combustibleRowsHTML) combustibleRowsHTML = '<tr><td colspan="6" style="text-align:center; font-style:italic;">Sin ventas de combustible</td></tr>';
-                printContentHTML += combustibleRowsHTML;
-                printContentHTML += `
-                                </tbody>
-                            </table>
-                            <p class="print-total">Total Combustibles: ${totalCombustiblesResumenSpan.textContent}</p>
-                        </div>
-
-                        <div class="print-section print-list">
-                            <h2><i class="fas fa-cash-register"></i> Caja</h2>
-                            <ul><li><span>Efectivo Declarado:</span> <span>${'$' + (parseFloat(efectivoInput.value) || 0).toFixed(2)}</span></li></ul>`;
-                if (aceitesItems.length > 0) {
-                    printContentHTML += `<h3>Aceites y Lubricantes:</h3><ul>`;
-                    aceitesItems.forEach(item => { const match = item.text.match(/(.*) - \$([\d.]+)/); const nombre = match ? match[1] : item.text; printContentHTML += `<li><span>- ${nombre}</span> <span>$${item.value.toFixed(2)}</span></li>`; });
-                    printContentHTML += `</ul><p class="print-subtotal">Subtotal: ${totalAceitesSpan.textContent}</p>`;
+                
+                let fuelSummaryHTML = '<tr><td colspan="3" style="text-align:center;">Sin ventas</td></tr>';
+                if(Object.keys(fuelSummary).length > 0) {
+                    fuelSummaryHTML = Object.entries(fuelSummary).map(([tipo, data]) => `
+                        <tr>
+                            <td>${tipo}</td>
+                            <td class="number">${data.litros.toFixed(2)} L</td>
+                            <td class="number"><strong>${formatCurrency(data.total)}</strong></td>
+                        </tr>
+                    `).join('');
                 }
-                if (valesItems.length > 0) {
-                    printContentHTML += `<h3>Vales y Cheques:</h3><ul>`;
-                    valesItems.forEach(item => { const parts = item.text.split(' - '); let displayText = parts[0]; if (parts.length > 2) { displayText += ` (${parts[1]}`; if (parts[2].includes('L')) displayText += `, ${parts[2]}`; displayText += `)`; } printContentHTML += `<li><span>- ${displayText}</span> <span>$${item.value.toFixed(2)}</span></li>`; });
-                    printContentHTML += `</ul><p class="print-subtotal">Subtotal: ${totalValesSpan.textContent}</p>`;
-                }
-                if (tarjetasItems.length > 0) {
-                    printContentHTML += `<h3>Tarjetas:</h3><ul>`;
-                    tarjetasItems.forEach(item => { printContentHTML += `<li><span>- Venta Tarjeta</span> <span>$${item.value.toFixed(2)}</span></li>`; });
-                    printContentHTML += `</ul><p class="print-subtotal">Subtotal: ${totalTarjetasSpan.textContent}</p>`;
-                }
-                if (transferenciasItems.length > 0) {
-                    printContentHTML += `<h3>Transf./Fiado/Otros:</h3><ul>`;
-                    transferenciasItems.forEach(item => { const parts = item.text.split(' - '); let displayText = parts[0]; if (parts.length > 2) { displayText += ` (${parts[1]}`; if (parts[2].includes('L')) displayText += `, ${parts[2]}`; displayText += `)`; } printContentHTML += `<li><span>- ${displayText}</span> <span>$${item.value.toFixed(2)}</span></li>`; });
-                    printContentHTML += `</ul><p class="print-subtotal">Subtotal: ${totalTransferenciasSpan.textContent}</p>`;
-                }
-                printContentHTML += `
-                        </div> <!-- Fin print-section Caja -->
 
-                        <div class="print-summary">
-                            <span>TOTAL COMBUSTIBLES: ${totalCombustiblesResumenSpan.textContent}</span>
-                            <span>TOTAL CAJA: ${totalCajaSpan.textContent}</span>
-                            <span>DIFERENCIA: ${diferenciaSpan.textContent}</span>
-                        </div>
+                let printHTML = `
+                <style>
+                    .print-container{font-family:Arial,sans-serif;font-size:9pt;color:#000;width:100%}.print-container h1{font-size:14pt;text-align:center;margin:0 0 10px}.print-container h2{font-size:11pt;margin:15px 0 5px;padding-bottom:3px;border-bottom:1px solid #ccc}.print-header{display:flex;justify-content:space-between;margin-bottom:15px;padding-bottom:5px;border-bottom:1px solid #000;font-size:9pt;flex-wrap:wrap}.print-header span{margin-right:15px}.print-table{width:100%;border-collapse:collapse;margin-top:5px;table-layout:fixed}.print-table th,.print-table td{border:1px solid #ccc;padding:3px 5px;font-size:8pt;text-align:left;word-wrap:break-word}.print-table th{background-color:#f2f2f2!important;font-weight:700}.print-table td.number{text-align:right}.print-list{margin:5px 0 10px;padding:0;list-style:none}.print-list h3{font-size:10pt;margin:8px 0 3px;font-weight:700}.print-list li{display:flex;justify-content:space-between;font-size:8.5pt;padding:2px 0;border-bottom:1px dotted #eee}.print-list li span:first-child{padding-right:10px}.print-total{text-align:right;font-weight:700;font-size:10pt;margin-top:5px;padding-top:5px;border-top:1px solid #aaa}.print-subtotal{text-align:right;font-size:9pt;margin-top:3px}.print-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px;padding-top:10px;border-top:2px solid #000;font-size:10pt;font-weight:700}.print-summary span{padding:5px;background-color:#f2f2f2;border-radius:3px;text-align:center}.print-notes{margin-top:20px}.print-notes-content{font-size:9pt;white-space:pre-wrap;word-wrap:break-word;padding:8px;border:1px solid #eee;min-height:40px;background-color:#fdfdfd}.print-footer{text-align:center;font-size:7pt;margin-top:20px;color:#666;border-top:1px solid #ccc;padding-top:5px}
+                </style>
+                <div class="print-container">
+                    <h1>Cierre de Caja - Gasolinera</h1>
+                    <div class="print-header">
+                        <span><strong>Fecha:</strong> ${fecha} ${hora}</span>
+                        <span><strong>Turno:</strong> ${turno}</span>
+                        <span><strong>Playero:</strong> ${playero}</span>
+                    </div>
 
-                        <!-- MODIFICACIÓN 2: Mostrar contenido de las notas -->
-                        <div class="print-notes">
-                            <h2><i class="fas fa-pencil-alt"></i> Notas:</h2>
-                            <div class="print-notes-content">${notas ? notas.replace(/\n/g, '<br>') : '<em>Sin notas.</em>'}</div>
-                        </div>
-                        <!-- Fin MODIFICACIÓN 2 -->
+                    <h2>Resumen por Combustible</h2>
+                    <table class="print-table">
+                        <thead><tr><th>Tipo</th><th class="number">Total Litros</th><th class="number">Total Monto</th></tr></thead>
+                        <tbody>${fuelSummaryHTML}</tbody>
+                    </table>
 
+                    <h2>Detalle de Surtidores</h2>
+                    <table class="print-table">
+                        <thead><tr><th>Pico/Tipo</th><th>Inicio</th><th>Final</th><th>Litros</th><th>P.Unit</th><th>P.Total</th></tr></thead>
+                        <tbody>
+                        ${[...UI.fuelTables].map(table => {
+                            const pico = table.parentElement.querySelector('h3').textContent.trim();
+                            return [...table.querySelectorAll('tbody tr')].map(row => {
+                                const litros = parseFloat(row.querySelector('.litro').value);
+                                if (!litros || litros <= 0) return '';
+                                return `<tr>
+                                    <td>${pico}/${row.querySelector('td:first-child').textContent}</td>
+                                    <td class="number">${row.querySelector('.inicio').value}</td>
+                                    <td class="number">${row.querySelector('.final').value}</td>
+                                    <td class="number">${litros.toFixed(2)}</td>
+                                    <td class="number">${formatCurrency(parseFloat(row.querySelector('.precio-unitario').value))}</td>
+                                    <td class="number"><strong>${formatCurrency(parseFloat(row.querySelector('.precio-total').value))}</strong></td>
+                                </tr>`;
+                            }).join('');
+                        }).join('')}
+                        </tbody>
+                    </table>
+                    <p class="print-total">Total Combustibles: ${UI.totalCombustiblesResumenSpan.textContent}</p>
+                    
+                    <h2>Detalle de Caja</h2>
+                    <div class="print-list">
+                        <ul><li><span>Efectivo Declarado:</span> <span>${formatCurrency(parseFloat(UI.efectivoInput.value))}</span></li></ul>
+                        ${Object.keys(appState.currentClosing.items).map(type => {
+                            const items = appState.currentClosing.items[type];
+                            if (items.length === 0) return '';
+                            return `
+                                <h3>${type.charAt(0).toUpperCase() + type.slice(1)}:</h3>
+                                <ul>${items.map(item => `<li><span>- ${item.text.split(' - ')[0]}</span> <span>${formatCurrency(item.value)}</span></li>`).join('')}</ul>
+                                <p class="print-subtotal">Subtotal: ${UI.columnTotals[type].textContent}</p>
+                            `;
+                        }).join('')}
+                    </div>
 
-                        <div class="print-footer">
-                            Sistema de Gestión - Gasolinera - ${fecha} ${hora}
-                        </div>
-                    </div> <!-- Fin print-container -->
-                `;
+                    <div class="print-summary">
+                        <span>TOTAL COMBUSTIBLES: ${UI.totalCombustiblesResumenSpan.textContent}</span>
+                        <span>TOTAL CAJA: ${UI.totalCajaSpan.textContent}</span>
+                        <span>DIFERENCIA: ${UI.diferenciaSpan.textContent}</span>
+                    </div>
 
-                printContent.innerHTML = printContentHTML;
-                openModal(printModal);
-            });
+                    <div class="print-notes">
+                        <h2>Notas:</h2>
+                        <div class="print-notes-content">${notas ? notas.replace(/\n/g, '<br>') : '<em>Sin notas.</em>'}</div>
+                    </div>
 
-            printButton.addEventListener('click', function() {
-                printButton.style.display = 'none';
-                const closeBtnInPrintModal = printModal.querySelector('.close');
-                if(closeBtnInPrintModal) closeBtnInPrintModal.style.display = 'none';
-                window.print();
-                setTimeout(() => {
-                     printButton.style.display = 'inline-flex';
-                     if(closeBtnInPrintModal) closeBtnInPrintModal.style.display = 'block';
-                     closeModal(printModal);
-                }, 500);
-            });
+                    <div class="print-footer">Sistema de Gestión - Gasolinera</div>
+                </div>`;
+                
+                UI.printContent.innerHTML = printHTML;
+                openModal(modals.print);
+            }
+            
+            // ------------------------------------------------------------------------
+            // Inicialización de la Aplicación
+            // ------------------------------------------------------------------------
+            function init() {
+                loadState();
+                renderAll();
+                
+                // Set up listeners
+                setupPanel1Listeners();
+                setupPanel2Listeners();
+                setupPanel3Listeners();
+                setupPanel4Listeners();
+                setupModalListeners();
+                
+                // Reloj
+                setInterval(() => {
+                    const now = new Date();
+                    document.getElementById('current-date').textContent = now.toLocaleDateString();
+                    document.getElementById('current-time').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    let shift = "Noche";
+                    if (now.getHours() >= 6 && now.getHours() < 14) shift = "Mañana";
+                    else if (now.getHours() >= 14 && now.getHours() < 22) shift = "Tarde";
+                    document.getElementById('current-shift').textContent = shift;
+                }, 1000);
+            }
 
-            // --- INICIALIZACIÓN AL CARGAR ---
-            calcularTotalCombustibles();
-            updateTotalCaja(); // Calcula total caja inicial (ya incluye updateDiferencia)
-            renderPlayeros(); // Inicializar lista y select de playeros
-            renderClientes(); // MODIFICACIÓN 1: Inicializar lista y select de clientes
+            init();
 
         }); // Fin de DOMContentLoaded
     </script>

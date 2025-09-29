@@ -701,11 +701,24 @@
             transform: scale(1);
         }
 
-
+        /* --- INICIO DE LA CORRECCIÓN --- */
         .config-modal-content, .print-modal-content {
-            max-width: 850px; /* Más ancho para config e impresión */
+            max-width: 850px; /* Ancho más grande para estos modales */
             width: 90%;
+            max-height: 90vh; /* Altura máxima para que quepa en la pantalla */
+            display: flex; /* Usar flexbox para el layout interno */
+            flex-direction: column; /* Apilar header, content y footer verticalmente */
         }
+
+        .config-sections {
+            flex-direction: column;
+            gap: 25px;
+            margin-top: 20px;
+            overflow-y: auto; /* AÑADIDO: Permite el scroll en el contenido si excede la altura */
+            padding-right: 15px; /* AÑADIDO: Espacio para la barra de scroll para que no se superponga */
+            flex-grow: 1; /* AÑADIDO: Hace que esta sección ocupe el espacio disponible */
+        }
+        /* --- FIN DE LA CORRECCIÓN --- */
 
         .close {
             position: absolute;
@@ -734,6 +747,7 @@
             border-bottom: 1px solid var(--border-color);
             text-align: center; /* Centrar título del modal */
             font-size: 1.6rem;
+            flex-shrink: 0; /* Evita que el título se encoja */
         }
 
 
@@ -768,6 +782,7 @@
             margin-top: 20px; /* Más espacio arriba */
             width: 100%;
             transition: background-color 0.3s;
+            flex-shrink: 0; /* Evita que el botón se encoja */
         }
 
 
@@ -817,6 +832,7 @@
             margin-bottom: 25px; /* Más espacio */
             text-align: center;
             border-left: 5px solid var(--warning-color);
+            flex-shrink: 0; /* Evita que se encoja */
         }
         
         .config-danger-zone {
@@ -845,13 +861,6 @@
 
         .warning-btn:hover {
             background-color: #c0392b;
-        }
-
-        .config-sections {
-            /* display: flex; */ /* Quitar flex si no es necesario */
-            flex-direction: column;
-            gap: 25px; /* Más espacio entre secciones */
-            margin-top: 20px; /* Espacio después de la advertencia */
         }
 
         .config-section {
@@ -1020,7 +1029,6 @@
 
         /*Estilos para la vista previa de impresión*/
         .print-modal-content {
-            max-width: 900px;
             background-color: #f8f9fa; /* Fondo ligeramente gris para el modal */
         }
 
@@ -1032,8 +1040,8 @@
             margin-bottom: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Sombra suave */
             border: 1px solid #ccc; /* Borde sutil */
-            min-height: 70vh; /* Altura mínima para ver el contenido */
             overflow-y: auto; /* Scroll si el contenido es muy largo */
+            flex-grow: 1; /* Ocupa el espacio disponible */
         }
 
         /* Ajustes generales dentro de print-content para la vista previa */
@@ -1123,6 +1131,7 @@
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
 
         #print-btn-final { /* Estilo específico para el botón de imprimir final */
@@ -1799,7 +1808,6 @@
                     </div>
                 </div>
 
-                <button id="save-config-btn" class="confirm-btn">Guardar Configuración</button>
                 
                 <!-- MEJORA UX: Zona de Peligro para reseteo -->
                 <div class="config-danger-zone">
@@ -1809,6 +1817,7 @@
                 </div>
 
             </div>
+            <button id="save-config-btn" class="confirm-btn">Guardar Configuración</button>
         </div>
     </div>
 
